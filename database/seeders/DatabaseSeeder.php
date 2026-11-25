@@ -21,6 +21,10 @@ class DatabaseSeeder extends Seeder
         User::firstOrCreate(['email' => 'livreur@ecommerce.com'], [
             'name' => 'Livreur Dakar', 'password' => Hash::make('password'), 'role' => 'livreur',
         ]);
+        $vendeur = User::firstOrCreate(['email' => 'vendeur@ecommerce.com'], [
+            'name' => 'Vendeur Démo', 'shop_name' => 'Boutique Teranga', 'phone' => '+221770000001',
+            'password' => Hash::make('password'), 'role' => 'vendeur',
+        ]);
 
         // Catégories + Produits
         $data = [
@@ -151,6 +155,13 @@ class DatabaseSeeder extends Seeder
                     ]
                 );
             }
+        }
+
+        // Le vendeur démo reçoit quelques produits pour tester son tableau de bord
+        if ($vendeur->wasRecentlyCreated) {
+            Product::whereNull('seller_id')
+                ->whereHas('category', fn ($q) => $q->whereIn('slug', ['electronique', 'informatique']))
+                ->update(['seller_id' => $vendeur->id]);
         }
     }
 }

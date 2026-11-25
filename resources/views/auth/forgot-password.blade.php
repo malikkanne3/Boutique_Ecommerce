@@ -1,25 +1,22 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
-    </div>
+@extends('layouts.auth')
+@section('title', 'Mot de passe oublié')
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+@section('content')
+    <h1 class="fw-bold mb-1" style="letter-spacing:-.03em">Mot de passe oublié ?</h1>
+    <p class="text-muted mb-4">Entrez l'adresse e-mail de votre compte, nous vous envoyons un lien pour en choisir un nouveau. Valable pour tous les types de compte.</p>
+
+    @if(session('status'))
+        <div class="alert alert-success d-flex gap-2"><i class="bi bi-envelope-check fs-5"></i><div>{{ session('status') }}</div></div>
+    @endif
 
     <form method="POST" action="{{ route('password.email') }}">
         @csrf
-
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <div class="mb-3">
+            <label class="form-label" for="email">Adresse email</label>
+            <input id="email" type="email" name="email" value="{{ old('email') }}" class="form-control form-control-lg @error('email') is-invalid @enderror" required autofocus>
+            @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
         </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
-        </div>
+        <button class="btn btn-primary btn-lg w-100"><i class="bi bi-send me-1"></i>Envoyer le lien</button>
     </form>
-</x-guest-layout>
+    <p class="text-center mt-4 mb-0"><a href="javascript:history.back()" class="fw-bold">← Retour</a></p>
+@endsection

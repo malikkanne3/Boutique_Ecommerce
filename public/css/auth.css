@@ -1,0 +1,20 @@
+/* Pages de connexion / inscription (un thème par rôle) */
+.auth-wrap { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+.auth-side { background: linear-gradient(145deg, var(--auth-from, #3b1585), var(--auth-mid, #7c3aed) 60%, var(--auth-to, #d946ef)); color: #fff; padding: 3rem; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
+.auth-side::after { content: ''; position: absolute; width: 380px; height: 380px; border-radius: 50%; background: rgba(255,255,255,.09); right: -120px; bottom: -120px; }
+.auth-side h2 { font-size: 2.2rem; font-weight: 800; letter-spacing: -.04em; line-height: 1.15; }
+.role-pill { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.14); border-radius: 14px; padding: .7rem 1rem; margin-bottom: .6rem; font-weight: 600; font-size: .9rem; backdrop-filter: blur(6px); }
+.auth-main { display: flex; align-items: center; justify-content: center; padding: 2rem 1.25rem; background: var(--bg, #faf8ff); }
+.auth-box { width: 100%; max-width: 440px; }
+.type-card input { display: none; }
+.type-card label { display: block; border: 2px solid var(--border); border-radius: 16px; padding: .9rem; text-align: center; cursor: pointer; font-weight: 700; transition: all .15s; height: 100%; }
+.type-card label i { display: block; font-size: 1.6rem; color: var(--accent); }
+.type-card label small { display: block; font-weight: 500; color: var(--muted); font-size: .74rem; }
+.type-card input:checked + label { border-color: var(--accent); background: var(--accent-soft); }
+.portal-icon { width: 64px; height: 64px; border-radius: 20px; display: grid; place-items: center; font-size: 1.9rem; color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 12px 28px rgba(var(--accent-rgb), .4); margin-bottom: 1.2rem; }
+.portal-links a { display: inline-flex; align-items: center; gap: 6px; padding: .35rem .8rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: .8rem; margin: 0 .2rem .4rem 0; }
+.portal-links a:hover { background: var(--accent); color: #fff; }
+body.theme-admin   { --auth-from: #050816; --auth-mid: #1e1b4b; --auth-to: #4338ca; }
+body.theme-vendeur { --auth-from: #022c22; --auth-mid: #047857; --auth-to: #10b981; }
+body.theme-livreur { --auth-from: #9a3412; --auth-mid: #ea580c; --auth-to: #f59e0b; }
+@media (max-width: 860px) { .auth-wrap { grid-template-columns: 1fr; } .auth-side { display: none; } }

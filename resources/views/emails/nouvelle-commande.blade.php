@@ -32,7 +32,7 @@
             <td style="padding:10px;border:1px solid #eee;color:#7c3aed;font-weight:bold">{{ $order->formatted_total }}</td>
         </tr>
     </table>
-    <a href="{{ url('/admin/orders/' . $order->id) }}"
+    <a href="{{ \App\Support\Portal::url('admin', 'orders/' . $order->id) }}"
        style="background:#7c3aed;color:white;padding:12px 25px;border-radius:8px;text-decoration:none;display:inline-block">
         Voir la commande
     </a>

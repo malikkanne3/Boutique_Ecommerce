@@ -1,36 +1,32 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 @section('title', 'Notifications')
-@section('content')
-<div class="container" style="max-width:700px">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h5 class="fw-bold mb-0"><i class="bi bi-bell me-2 text-primary"></i>Mes notifications</h5>
-        <form method="POST" action="{{ route('notifications.readAll') }}">
-            @csrf
-            <button class="btn btn-sm btn-outline-primary">Tout marquer comme lu</button>
-        </form>
-    </div>
 
-    @forelse($notifications as $notif)
-    <div class="card mb-2 border-0 shadow-sm {{ !$notif->is_read ? 'border-start border-primary border-3' : '' }}">
-        <div class="card-body d-flex align-items-start gap-3 py-3">
-            <div style="width:42px;height:42px;border-radius:12px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                <i class="bi bi-{{ $notif->icon }} text-{{ $notif->color }} fs-5"></i>
-            </div>
-            <div class="flex-grow-1">
-                <div class="fw-bold" style="font-size:.9rem">{{ $notif->title }}</div>
-                <div class="text-muted" style="font-size:.82rem">{{ $notif->body }}</div>
-                <div class="text-muted mt-1" style="font-size:.75rem">{{ $notif->created_at->diffForHumans() }}</div>
-            </div>
-            @if(!$notif->is_read)
-            <span class="badge bg-primary rounded-pill" style="font-size:.65rem">Nouveau</span>
-            @endif
-        </div>
-    </div>
+@section('content')
+<x-page-head title="Notifications" :subtitle="$unread ? $unread.' non lue(s)' : 'Vous êtes à jour 🎉'">
+    <x-slot:actions>
+        @if($unread)<form action="{{ route('notifications.readAll') }}" method="POST">@csrf<button class="btn btn-soft"><i class="bi bi-check2-all me-1"></i>Tout marquer comme lu</button></form>@endif
+    </x-slot:actions>
+</x-page-head>
+
+<div class="ui-card overflow-hidden rise">
+    @forelse($notifications as $n)
+        <form action="{{ route('notifications.read', $n) }}" method="POST" data-no-loading>@csrf
+            <button class="notif w-100 text-start border-0 {{ $n->is_read ? '' : 'unread' }}" style="background:{{ $n->is_read ? 'transparent' : '' }}">
+                <span class="position-relative flex-shrink-0">
+                    @if($n->actor)<x-avatar :user="$n->actor" /><span class="position-absolute notif-badge"><i class="bi bi-{{ $n->icon }}"></i></span>
+                    @else<span class="notif-ico"><i class="bi bi-{{ $n->icon }}"></i></span>@endif
+                </span>
+                <span class="flex-grow-1">
+                    <span class="d-block fw-bold">{{ $n->title }}</span>
+                    <span class="d-block small text-muted">{{ $n->body }}</span>
+                    <span class="d-block small text-muted mt-1"><i class="bi bi-clock me-1"></i>{{ $n->created_at->diffForHumans() }}</span>
+                </span>
+                @if(! $n->is_read)<span class="pill pill-pending align-self-center">Nouveau</span>@endif
+            </button>
+        </form>
     @empty
-    <div class="text-center py-5 text-muted">
-        <i class="bi bi-bell-slash fs-1 d-block mb-3"></i>
-        Aucune notification pour le moment.
-    </div>
+        <x-empty-state icon="bell-slash" title="Aucune notification" text="Vous serez prévenu ici dès qu'il y a du nouveau." />
     @endforelse
 </div>
+<div class="mt-4 d-flex justify-content-center">{{ $notifications->links() }}</div>
 @endsection

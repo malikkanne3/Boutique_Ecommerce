@@ -1,235 +1,104 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Livreur — E-Shop SN</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #7c3aed;
-            --primary-light: #ede9fe;
-            --dark: #0f172a;
-            --border: #e2e8f0;
-        }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; }
+@extends('layouts.dashboard')
+@section('title', 'Missions')
 
-        /* NAVBAR */
-        .topnav { background: var(--dark); padding: .875rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
-        .topnav .brand { color: #fff; font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
-        .topnav .brand-icon { background: linear-gradient(135deg, #7c3aed, #a855f7); width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-        .topnav .user-info { color: #94a3b8; font-size: .85rem; display: flex; align-items: center; gap: 12px; }
-        .topnav .user-info strong { color: #e2e8f0; }
-
-        /* STAT CARDS */
-        .stat-card { border-radius: 16px; border: none; padding: 1.25rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
-        .stat-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
-        .stat-value { font-size: 1.8rem; font-weight: 800; color: var(--dark); line-height: 1; }
-        .stat-label { font-size: .8rem; color: #64748b; font-weight: 500; margin-top: 2px; }
-
-        /* TABS */
-        .nav-tabs { border: none; gap: 8px; }
-        .nav-tabs .nav-link { border: 1px solid var(--border); border-radius: 10px !important; color: #64748b; font-weight: 600; font-size: .85rem; padding: .5rem 1rem; background: #fff; }
-        .nav-tabs .nav-link.active { background: var(--primary); border-color: var(--primary); color: #fff; }
-
-        /* COMMANDE CARD */
-        .commande-card { border-radius: 16px; border: 1px solid var(--border); background: #fff; margin-bottom: 1rem; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.04); transition: box-shadow .2s; }
-        .commande-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.08); }
-        .commande-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #fafafa; }
-        .commande-body { padding: 1.25rem; }
-        .commande-footer { padding: .875rem 1.25rem; border-top: 1px solid var(--border); background: #fafafa; display: flex; gap: .75rem; flex-wrap: wrap; }
-
-        /* BADGES */
-        .badge-delivering { background: #dbeafe; color: #1e40af; padding: 5px 12px; border-radius: 20px; font-size: .75rem; font-weight: 600; }
-        .badge-confirmed  { background: #fef3c7; color: #92400e; padding: 5px 12px; border-radius: 20px; font-size: .75rem; font-weight: 600; }
-        .badge-delivered  { background: #d1fae5; color: #065f46; padding: 5px 12px; border-radius: 20px; font-size: .75rem; font-weight: 600; }
-
-        /* INFO ITEMS */
-        .info-item { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: #475569; margin-bottom: .4rem; }
-        .info-item i { width: 18px; color: var(--primary); }
-
-        /* ARTICLES */
-        .article-item { display: flex; align-items: center; gap: 10px; padding: .5rem 0; border-bottom: 1px dashed var(--border); }
-        .article-item:last-child { border: none; }
-        .article-qty { background: var(--primary-light); color: var(--primary); font-weight: 700; font-size: .75rem; padding: 2px 8px; border-radius: 20px; }
-
-        /* EMPTY */
-        .empty-state { text-align: center; padding: 3rem; color: #94a3b8; }
-        .empty-state i { font-size: 3rem; margin-bottom: 1rem; display: block; opacity: .4; }
-    </style>
-</head>
-<body>
-
-{{-- NAVBAR --}}
-<div class="topnav">
-    <div class="brand">
-        <div class="brand-icon"><i class="bi bi-bag-heart-fill text-white"></i></div>
-        E-ShopSN — Espace Livreur
-    </div>
-    <div class="user-info">
-        <span>Bonjour, <strong>{{ auth()->user()->name }}</strong></span>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button class="btn btn-sm btn-outline-light" style="border-radius:8px;font-size:.8rem">
-                <i class="bi bi-box-arrow-right me-1"></i>Déconnexion
-            </button>
-        </form>
-    </div>
+@section('content')
+<div class="row g-2 mb-4">
+    @foreach([['hourglass-split', 'À accepter', $stats['to_accept'], 'warn'], ['truck', 'En cours', $stats['ongoing'], 'info'], ['calendar-check', "Aujourd'hui", $stats['today'], 'ok'], ['trophy', 'Total livrées', $stats['total'], '']] as [$ic, $lb, $val, $tone])
+        <div class="col-6 col-md-3">
+            <div class="ui-card p-3 text-center rise h-100"><div class="stat-ico {{ $tone }} mx-auto mb-2" style="width:42px;height:42px;font-size:1.2rem"><i class="bi bi-{{ $ic }}"></i></div>
+                <div class="stat-value" style="font-size:1.45rem">{{ $val }}</div><div class="stat-label" style="font-size:.66rem">{{ $lb }}</div></div>
+        </div>
+    @endforeach
 </div>
 
-<div class="container py-4">
+@php $me = auth()->user(); @endphp
 
-    {{-- ALERTES --}}
-    @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2" style="border-radius:12px;border:none">
-        <i class="bi bi-check-circle-fill"></i> {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    @endif
-
-    {{-- HEADER --}}
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <div>
-            <h4 class="fw-bold mb-0">👋 Bonjour, {{ auth()->user()->name }}</h4>
-            <p class="text-muted mb-0" style="font-size:.85rem">{{ now()->format('d/m/Y') }}</p>
-        </div>
-    </div>
-
-    {{-- STATS --}}
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
-            <div class="stat-card bg-white">
-                <div class="stat-icon" style="background:#ede9fe">
-                    <i class="bi bi-box-seam" style="color:#7c3aed"></i>
-                </div>
-                <div>
-                    <div class="stat-value">{{ $stats['total'] }}</div>
-                    <div class="stat-label">Total</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card bg-white">
-                <div class="stat-icon" style="background:#fef3c7">
-                    <i class="bi bi-hourglass-split" style="color:#d97706"></i>
-                </div>
-                <div>
-                    <div class="stat-value">{{ $stats['en_attente'] }}</div>
-                    <div class="stat-label">À accepter</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card bg-white">
-                <div class="stat-icon" style="background:#dbeafe">
-                    <i class="bi bi-truck" style="color:#2563eb"></i>
-                </div>
-                <div>
-                    <div class="stat-value">{{ $stats['en_cours'] }}</div>
-                    <div class="stat-label">En cours</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card bg-white">
-                <div class="stat-icon" style="background:#d1fae5">
-                    <i class="bi bi-check-circle" style="color:#059669"></i>
-                </div>
-                <div>
-                    <div class="stat-value">{{ $stats['livrees'] }}</div>
-                    <div class="stat-label">Livrées</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- TABS --}}
-    <ul class="nav nav-tabs mb-4" id="livraisonTabs">
-        <li class="nav-item">
-            <a class="nav-link active" data-bs-toggle="tab" href="#tab-all">
-                <i class="bi bi-grid me-1"></i>Toutes <span class="badge bg-secondary ms-1" style="font-size:.65rem">{{ $stats['total'] }}</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#tab-attente">
-                <i class="bi bi-hourglass me-1"></i>À accepter
-                @if($stats['en_attente'] > 0)
-                <span class="badge bg-warning text-dark ms-1" style="font-size:.65rem">{{ $stats['en_attente'] }}</span>
-                @endif
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#tab-cours">
-                <i class="bi bi-truck me-1"></i>En cours
-                @if($stats['en_cours'] > 0)
-                <span class="badge bg-primary ms-1" style="font-size:.65rem">{{ $stats['en_cours'] }}</span>
-                @endif
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#tab-livrees">
-                <i class="bi bi-check-circle me-1"></i>Livrées
-            </a>
-        </li>
-    </ul>
-
-    {{-- CONTENU TABS --}}
-    <div class="tab-content">
-
-        {{-- TOUTES --}}
-        <div class="tab-pane fade show active" id="tab-all">
-            @forelse($commandes as $cmd)
-                @include('livreur.partials.commande-card', ['cmd' => $cmd])
-            @empty
-                <div class="empty-state">
-                    <i class="bi bi-inbox"></i>
-                    <p class="fw-semibold">Aucune commande assignée</p>
-                </div>
-            @endforelse
-        </div>
-
-        {{-- À ACCEPTER --}}
-        <div class="tab-pane fade" id="tab-attente">
-            @forelse($commandes->where('status', 'confirmed') as $cmd)
-                @include('livreur.partials.commande-card', ['cmd' => $cmd])
-            @empty
-                <div class="empty-state">
-                    <i class="bi bi-check2-circle"></i>
-                    <p class="fw-semibold">Aucune commande en attente</p>
-                </div>
-            @endforelse
-        </div>
-
-        {{-- EN COURS --}}
-        <div class="tab-pane fade" id="tab-cours">
-            @forelse($commandes->where('status', 'delivering') as $cmd)
-                @include('livreur.partials.commande-card', ['cmd' => $cmd])
-            @empty
-                <div class="empty-state">
-                    <i class="bi bi-truck"></i>
-                    <p class="fw-semibold">Aucune livraison en cours</p>
-                </div>
-            @endforelse
-        </div>
-
-        {{-- LIVRÉES --}}
-        <div class="tab-pane fade" id="tab-livrees">
-            @forelse($commandes->where('status', 'delivered') as $cmd)
-                @include('livreur.partials.commande-card', ['cmd' => $cmd])
-            @empty
-                <div class="empty-state">
-                    <i class="bi bi-bag-check"></i>
-                    <p class="fw-semibold">Aucune commande livrée</p>
-                </div>
-            @endforelse
-        </div>
-
-    </div>
+{{-- Disponibilité --}}
+<div class="ui-card p-3 mb-3 d-flex align-items-center gap-3 rise">
+    <span class="stat-ico {{ $me->is_available ? 'ok' : 'bad' }}" style="width:46px;height:46px"><i class="bi bi-{{ $me->is_available ? 'check-circle-fill' : 'pause-circle-fill' }}"></i></span>
+    <div class="flex-grow-1"><b>{{ $me->is_available ? 'Vous êtes disponible' : 'Vous êtes indisponible' }}</b>
+        <div class="small text-muted">{{ $me->is_available ? 'Les vendeurs peuvent vous assigner des livraisons.' : 'Aucune nouvelle livraison ne vous sera assignée.' }}</div></div>
+    <form action="{{ route('livreur.availability') }}" method="POST" data-no-loading>@csrf
+        <button class="btn {{ $me->is_available ? 'btn-outline-danger' : 'btn-primary' }}">{{ $me->is_available ? 'Me mettre indisponible' : 'Me mettre disponible' }}</button></form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>< ! - -   M o u s s a   :   D a s h b o a r d   l i v r e u r   - - >  
- 
+{{-- Partage de position --}}
+<div class="ui-card p-3 mb-3 rise">
+    <div class="d-flex align-items-center gap-3">
+        <span class="stat-ico info" style="width:46px;height:46px"><i class="bi bi-broadcast"></i></span>
+        <div class="flex-grow-1"><b>Partage de position en direct</b><div class="small text-muted" id="share-status">Désactivé — vos clients ne voient pas où vous êtes.</div></div>
+        <div class="form-check form-switch fs-3 m-0"><input class="form-check-input" type="checkbox" role="switch" id="share-toggle" aria-label="Partager ma position"></div>
+    </div>
+    <div class="small text-muted mt-2"><i class="bi bi-info-circle me-1"></i>Gardez cette page ouverte pendant vos livraisons. Nécessite une connexion https et votre autorisation.</div>
+</div>
+
+@include('partials.quick-actions')
+
+@if(count($tour) >= 2)
+    @php
+        $gps = collect($tour)->filter(fn ($t) => $t['order']->has_exact_location)->map(fn ($t) => $t['order']->delivery_lat . ',' . $t['order']->delivery_lng)->values();
+        $dirUrl = $gps->count() ? 'https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=' . $gps->last() . ($gps->count() > 1 ? '&waypoints=' . urlencode($gps->slice(0, -1)->implode('|')) : '') : null;
+    @endphp
+    <div class="ui-card mb-4 rise">
+        <div class="ui-card-head"><span><i class="bi bi-signpost-split text-accent me-2"></i>Tournée conseillée</span><small>de la plus proche à la plus lointaine</small></div>
+        @foreach($tour as $i => $t)
+            @php $o = $t['order']; @endphp
+            <div class="d-flex align-items-center gap-3 px-3 py-2 border-bottom">
+                <span class="avatar" style="width:32px;height:32px;font-size:.85rem">{{ $i + 1 }}</span>
+                <div class="flex-grow-1 min-w-0"><b class="small">{{ $o->customer_name }}</b><div class="small text-muted text-truncate">{{ $o->shipping_address }}</div></div>
+                <div class="text-end small">@if($t['leg'] !== null)<b>≈ {{ $t['leg'] }} km</b>@elseif(! $o->has_exact_location)<span class="text-muted">sans GPS</span>@else<span class="text-muted">départ</span>@endif</div>
+                <a href="{{ $o->map_url }}" target="_blank" class="btn btn-soft btn-sm"><i class="bi bi-map"></i></a>
+            </div>
+        @endforeach
+        @if($dirUrl)<div class="p-3"><a href="{{ $dirUrl }}" target="_blank" class="btn btn-primary w-100"><i class="bi bi-signpost me-1"></i>Ouvrir l'itinéraire complet</a></div>@endif
+    </div>
+@endif
+
+<h5 class="fw-bold mb-3"><i class="bi bi-hourglass-split text-accent me-2"></i>Missions à accepter <span class="pill pill-warn ms-1">{{ $toAccept->count() }}</span></h5>
+@forelse($toAccept as $order)
+    @include('livreur.partials.mission', ['order' => $order, 'mode' => 'accept'])
+@empty
+    <div class="ui-card mb-4"><x-empty-state icon="inbox" title="Aucune nouvelle mission" text="Vous serez notifié dès qu'un vendeur vous en assigne une." /></div>
+@endforelse
+
+<h5 class="fw-bold mb-3 mt-4"><i class="bi bi-truck text-accent me-2"></i>Livraisons en cours <span class="pill pill-delivering ms-1">{{ $ongoing->count() }}</span></h5>
+@forelse($ongoing as $order)
+    @include('livreur.partials.mission', ['order' => $order, 'mode' => 'ongoing'])
+@empty
+    <div class="ui-card"><x-empty-state icon="truck" title="Rien en cours" text="Acceptez une mission pour démarrer votre tournée." /></div>
+@endforelse
+
+@include('partials.dash-extras')
+@endsection
+
+@push('scripts')
+<script>
+(function () {
+    var toggle = document.getElementById('share-toggle'), status = document.getElementById('share-status');
+    var token = document.querySelector('meta[name=csrf-token]').content, url = @json(route('livreur.position'));
+    var watchId = null, lastSent = 0;
+
+    function send(p) {
+        var now = Date.now(); if (now - lastSent < 10000) { return; } lastSent = now;
+        fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': token }, body: JSON.stringify({ lat: p.coords.latitude, lng: p.coords.longitude }) })
+            .then(function (r) { status.textContent = r.ok ? 'Position partagée à ' + new Date().toLocaleTimeString('fr-FR') : 'Envoi refusé (reconnectez-vous).'; })
+            .catch(function () { status.textContent = 'Envoi impossible (réseau)…'; });
+    }
+    function start() {
+        if (!navigator.geolocation) { status.textContent = 'Géolocalisation indisponible sur cet appareil.'; toggle.checked = false; return; }
+        status.textContent = 'Recherche de votre position…';
+        watchId = navigator.geolocation.watchPosition(send, function (e) {
+            status.textContent = e.code === 1 ? 'Accès à la position refusé : autorisez-le dans le navigateur.' : 'Position indisponible (la connexion https est requise).';
+            toggle.checked = false; localStorage.removeItem('share_position');
+        }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
+        localStorage.setItem('share_position', '1');
+    }
+    function stop() {
+        if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+        localStorage.removeItem('share_position'); status.textContent = 'Désactivé — vos clients ne voient pas où vous êtes.';
+    }
+    toggle.addEventListener('change', function () { this.checked ? start() : stop(); });
+    if (localStorage.getItem('share_position') === '1') { toggle.checked = true; start(); }
+})();
+</script>
+@endpush

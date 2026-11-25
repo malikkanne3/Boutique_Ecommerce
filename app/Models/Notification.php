@@ -1,10 +1,12 @@
 <?php
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
-    protected $fillable = ['user_id', 'title', 'body', 'icon', 'color', 'link', 'is_read'];
+    protected $fillable = ['user_id', 'actor_id', 'title', 'body', 'icon', 'color', 'link', 'is_read'];
 
-    public function user() { return $this->belongsTo(User::class); }
+    public function user()  { return $this->belongsTo(User::class); }
+    public function actor() { return $this->belongsTo(User::class, 'actor_id'); }
 }

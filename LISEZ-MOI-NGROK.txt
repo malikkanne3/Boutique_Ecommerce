@@ -1,0 +1,97 @@
+E-SHOP SN — 4 ESPACES (client / vendeur / livreur / admin)
+===========================================================
+
+DEMARRAGE
+1. Dossier dans C:\laragon\www\ecommerce, Laragon demarre (Apache), puis Apache > Recharger
+2. Double-clic sur lancer-ngrok.bat : composer install si besoin, php artisan migrate,
+   affiche vos LIENS SECRETS, puis lance ngrok (rien ne change cote ngrok).
+   (si vous lancez php artisan a la main : faire d'abord  php artisan migrate)
+3. Local : http://ecommerce.test   |   Public : le lien https affiche par ngrok
+
+LIENS DE CONNEXION SECRETS (aucun lien visible sur le site)
+      php artisan portails:liens
+      php artisan portails:liens --url=https://VOTRE-LIEN.ngrok-free.app
+  Les liens sont aussi enregistres dans storage/app/liens-acces.txt
+  Ils dependent de APP_KEY (.env). Pour les fixer : PORTAL_ADMIN=..., PORTAL_VENDEUR=..., PORTAL_LIVREUR=...
+  Client : /login (public)
+  Un compte ne se connecte que depuis la page de SON espace.
+
+DOMAINE NGROK FIXE (evite de changer de lien a chaque lancement)
+  Dans lancer-ngrok.bat : set NGROK_DOMAIN=votre-nom.ngrok-free.app
+
+COMPTES
+  php artisan comptes:test                      -> admin/vendeur/livreur/client @ecommerce.com (mot de passe : password)
+  php artisan user:password EMAIL NOUVEAUMDP    -> changer le mot de passe d'un compte existant
+  !! Supprimez ou changez les comptes de test avant de partager le lien ngrok.
+
+REGLES DE COMPTES
+- Vendeur qui s'inscrit : en attente de validation admin (il recoit son lien par e-mail une fois valide)
+- Livreur : cree uniquement par un admin
+- Admin : cree un compte avec mot de passe genere ou provisoire (a changer a la 1re connexion),
+  peut desactiver / reactiver / reinitialiser / supprimer (un admin seulement s'il l'a cree lui-meme)
+- Personne ne peut supprimer son propre compte
+- Mot de passe oublie : disponible pour tous (lien envoye par e-mail via Brevo)
+
+MESSAGERIE (regles actuelles : uniquement entre personnes liees par une COMMANDE)
+  client  <-> vendeur : le client a une commande chez ce vendeur
+  client  <-> livreur : seulement tant que sa commande est assignee a CE livreur (livraison en cours, suivi en direct)
+  vendeur <-> livreur : le livreur est assigne a une commande du vendeur
+  vendeur <-> vendeur : un meme panier d'un client concerne leurs deux boutiques (commandes passees apres la mise a jour)
+  admin : aucune discussion ; il envoie des ANNONCES (lecture seule, sans reponse possible)
+
+PHASE 2 — PRODUITS, STOCK, PANIER
+- STOCK : seul le vendeur gere le stock et la disponibilite (disponible / rupture). L'admin ne voit qu'un statut.
+  L'admin ne cree pas de produits : il supervise (masquer, modifier les infos, reaffecter, supprimer).
+- Variantes : dans la fiche produit, "Tailles & couleurs" -> saisir S, M, L et Noir, Blanc puis "Generer" ; un stock par combinaison.
+- Photos : jusqu'a 6 par produit (la 1re est la principale). Il faut `php artisan storage:link` (fait par lancer-ngrok.bat).
+- Reduction sur une periode (%, dates) et tarif degressif (a partir de X unites) par produit.
+- Photos de profil (tous), logo de boutique (vendeur) : Mon profil / Ma boutique, et a l'inscription.
+- Panier en 3 etapes : Panier -> Livraison & paiement (adresse et/ou position GPS, espèces / Wave / Orange Money) -> Confirmation.
+  La position GPS exige le lien https (ngrok), pas http://ecommerce.test.
+- Numeros marchands a afficher apres commande (facultatif) : .env  WAVE_NUMBER=...  OM_NUMBER=...
+- Wave / Orange Money : paiement a la livraison (pas de paiement en ligne automatique pour l'instant).
+
+PHASE 3 — MESSAGERIE AVANCEE
+- Pieces jointes : fichiers (pdf, word, excel, powerpoint, txt, csv, zip), photos, position exacte. 10 Mo maximum.
+  Les fichiers sont PRIVES (storage/app/private) : seuls l'expediteur et le destinataire (ou les membres du groupe) y accedent.
+- Boutons du champ de message : trombone (fichier), appareil photo (photo), pin (position exacte, exige https).
+- Transferer : survolez un message > "Transferer" > choisissez un contact autorise ou un groupe. Meme regles de messagerie.
+- Groupes : "Nouveau groupe" (dans chaque Messagerie). On n'invite que des personnes que l'on a le droit de contacter.
+  Le createur ajoute/retire des membres et peut supprimer le groupe ; les autres peuvent le quitter.
+- L'admin n'a pas de messagerie : il envoie des annonces (lecture seule).
+
+PHASE 4A — CLIENT
+- Favoris (coeur sur chaque produit) : page "Favoris" de l'espace client.
+- Produits recemment consultes : accueil, fiche produit, espace client.
+- Avis et notes : un client note un produit et le vendeur UNIQUEMENT apres livraison (depuis le detail de sa commande).
+  Le vendeur peut repondre publiquement a un avis (sous la fiche produit). L'admin modere (Avis : masquer / supprimer).
+- Racheter : bouton sur une commande livree ou annulee, remet les articles disponibles dans le panier.
+- Retours et litiges : bouton "Signaler un probleme" sur une commande livree (14 jours, reglable dans config/shop.php).
+  Le client decrit le probleme (photo possible) -> le vendeur repond -> si besoin le client demande l'arbitrage -> l'admin tranche
+  (remboursement / echange / aucune suite). Chacun est notifie.
+- Facture et bon de livraison : pages imprimables ("Imprimer / Enregistrer en PDF" dans le navigateur).
+  Facture : client, vendeur, admin. Bon de livraison : vendeur, livreur, admin.
+
+PHASE 4B — LIVRAISON & VENDEUR
+LIVREUR
+- Disponibilite : interrupteur en haut du tableau de bord. Un livreur indisponible ne peut pas etre assigne.
+- Partage de position : interrupteur "Partage de position en direct" (garder la page ouverte, https requis).
+  Le client voit le livreur sur une carte dans le detail de sa commande (mise a jour toutes les 8 s).
+- Code de livraison : a l'acceptation, le client recoit un code a 4 chiffres (notification + e-mail). A la remise du colis,
+  le livreur saisit ce code OU prend une photo du colis. Sans preuve, la commande ne passe pas en "livree".
+- Gains : page "Gains" (aujourd'hui / semaine / mois / total + recap hebdomadaire). Remuneration par course : COURIER_FEE dans .env (defaut 1000 FCFA).
+- Incident : "Signaler un incident" (client injoignable, adresse introuvable...) -> la commande passe en "Probleme de livraison",
+  le vendeur et le client sont prevenus ; le vendeur reassigne un livreur ou annule.
+- Tournee conseillee : si plusieurs livraisons avec position GPS, ordre du plus proche au plus lointain + itineraire complet.
+VENDEUR
+- Page boutique publique : /boutique/{id} (logo, banniere, description, horaires, produits, avis) avec boutons de partage
+  WhatsApp / Facebook / X et copie du lien. A regler dans "Ma boutique".
+- Horaires d'ouverture par jour, et MODE VACANCES (masque les produits et suspend les commandes, avec date de retour et message).
+- Notes internes sur une commande (visibles uniquement par le vendeur).
+
+MISE A JOUR MESSAGERIE (liee aux commandes)
+- Plus de discussion libre : chacun ne voit que les personnes liees a ses commandes.
+- Bouton "Discuter" sur la fiche d'un produit d'un autre vendeur (si un meme panier vous lie) et, dans le detail d'une commande,
+  rubrique "Autres vendeurs de ce panier" avec un bouton par vendeur.
+- Livreur : boutons "Ecrire au client" / "Ecrire au vendeur" sur chaque mission.
+- Les anciennes conversations avec des personnes non liees sont masquees (pas supprimees).

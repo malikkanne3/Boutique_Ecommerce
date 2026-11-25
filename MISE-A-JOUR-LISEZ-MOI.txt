@@ -1,0 +1,7 @@
+MISE A JOUR E-SHOP SN
+=====================
+Cette archive ne contient PAS : .env, database/database.sqlite, storage/
+=> decompressez-la par-dessus C:\\laragon\\www\\ecommerce sans rien perdre.
+
+Ensuite : php artisan migrate   (ou double-clic sur lancer-ngrok.bat)
+Puis Ctrl+F5 dans le navigateur.
